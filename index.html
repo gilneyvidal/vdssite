@@ -38,7 +38,7 @@
         body {
             margin: 0; 
             min-height: 100vh; 
-            background-image: url('background.jpg'); 
+            background-image: url('images/background.jpg'); 
             background-size: cover; 
             background-position: center; 
             background-repeat: no-repeat; 
@@ -55,14 +55,15 @@
         }
 
         .navigation-wrapper { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; animation: fadeIn 1.5s ease-in-out 0.3s; animation-fill-mode: backwards; }
-        .main-nav a { color: #f8f9fa; text-decoration: none; font-weight: 700; font-size: 1rem; margin: 0 15px; letter-spacing: 1px; transition: opacity 0.3s ease; display: flex; align-items: center; }
+        .main-nav { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+        .main-nav a { color: #f8f9fa; text-decoration: none; font-weight: 700; font-size: 1rem; transition: opacity 0.3s ease; display: flex; align-items: center; }
         .main-nav a:hover { opacity: 0.8; }
         .main-nav img { height: 20px; vertical-align: middle; }
         
-        .search-bar { display: flex; align-items: center; background-image: url('images/campo pesquisa.png'); background-size: 100% 100%; background-repeat: no-repeat; background-position: center; border: none; padding-left: 15px; height: 40px; }
-        .search-bar input { background: transparent; border: none; padding: 8px 12px; color: #333; outline: none; width: 150px; }
-        .search-bar input::placeholder { color: #aaa; }
-        .search-bar button { background: transparent; border: none; cursor: pointer; padding-right: 10px; display: flex; align-items: center; }
+        .search-bar { display: flex; border: 1px solid var(--text-light); border-radius: 4px; overflow: hidden; }
+        .search-bar input { background: transparent; border: none; padding: 8px 12px; color: var(--text-light); outline: none; width: 150px; }
+        .search-bar input::placeholder { color: #ccc; }
+        .search-bar button { background: transparent; border: none; cursor: pointer; padding: 0 12px; display: flex; align-items: center; }
         .search-bar button img { height: 20px; }
         
         .cart-icon-wrapper { position: relative; cursor: pointer; transition: transform 0.3s ease; }
@@ -78,9 +79,6 @@
             background-color: rgba(0, 0, 0, 0.7);
             padding: 10px 0;
             text-align: center;
-            font-weight: 700;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
             border-top: 1px solid #444;
             border-bottom: 1px solid #444;
             display: flex;
@@ -89,8 +87,11 @@
             flex-wrap: wrap;
             gap: 15px;
         }
+        .categories-bar a { transition: opacity 0.3s; }
+        .categories-bar a:hover { opacity: 0.8; }
         .categories-bar img {
             height: 18px;
+            vertical-align: middle;
         }
 
         .content-panel { background-color: var(--panel-bg); border-radius: 20px; padding: 40px; margin-top: 40px; margin-bottom: 40px; animation: fadeIn 1.5s ease-in-out 0.6s; animation-fill-mode: backwards; }
@@ -216,7 +217,7 @@
                 <a href="#"><img src="images/contato.png" alt="Contato"></a>
             </nav>
             <div class="search-bar">
-                <input type="text" placeholder="">
+                <input type="text" placeholder="Buscar produto...">
                 <button>
                     <img src="images/icon lupa.png" alt="Buscar">
                 </button>
@@ -229,15 +230,15 @@
     </header>
 
     <section class="categories-bar container">
-        <img src="images/cartão.png" alt="Cartão">
-        <img src="images/panfleto.png" alt="Panfleto">
-        <img src="images/banner.png" alt="Banner">
-        <img src="images/fachada.png" alt="Fachada">
-        <img src="images/toldo.png" alt="Toldo">
-        <img src="images/adesivo.png" alt="Adesivo">
-        <img src="images/calendário.png" alt="Calendário">
-        <img src="images/imã.png" alt="Imã">
-        <img src="images/camisetas.png" alt="Camisetas">
+        <a href="#"><img src="images/cartão.png" alt="Cartão"></a>
+        <a href="#"><img src="images/panfleto.png" alt="Panfleto"></a>
+        <a href="#"><img src="images/banner.png" alt="Banner"></a>
+        <a href="#"><img src="images/fachada.png" alt="Fachada"></a>
+        <a href="#"><img src="images/toldo.png" alt="Toldo"></a>
+        <a href="#"><img src="images/adesivo.png" alt="Adesivo"></a>
+        <a href="#"><img src="images/calendário.png" alt="Calendário"></a>
+        <a href="#"><img src="images/imã.png" alt="Imã"></a>
+        <a href="#"><img src="images/camisetas.png" alt="Camisetas"></a>
     </section>
 
     <main class="container">
@@ -538,3 +539,4 @@
 
 </body>
 </html>
+"
