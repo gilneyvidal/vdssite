@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vidal Design Solutions</title>
+    
+    <!-- Swiper.js para o Carrossel -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- jsPDF para gerar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        /* --- Declaração das Fontes Personalizadas --- */
+        @font-face {
+            font-family: 'BankGothic';
+            src: url('fonts/BankGthd.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'BankGothicLight';
+            src: url('fonts/tt0589m.ttf') format('truetype');
+        }
+
+        :root {
+            --text-light: #f8f9fa;
+            --text-dark: #212529;
+            --price-yellow: #fcee09;
+            --panel-bg: #2a2a2e;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0; 
+            min-height: 100vh; 
+            background-image: url('background.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            background-attachment: fixed; 
+            font-family: 'Montserrat', sans-serif; /* Fonte padrão para textos comuns */
+        }
+
+        .container { width: 90%; max-width: 1200px; margin: 0 auto; }
+        .main-header { padding: 40px 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+        
+        .logo-box img {
+            max-width: 250px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        .navigation-wrapper { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; animation: fadeIn 1.5s ease-in-out 0.3s; animation-fill-mode: backwards; }
+        .main-nav a { color: #f8f9fa; text-decoration: none; font-weight: 700; font-size: 1rem; margin: 0 15px; letter-spacing: 1px; transition: opacity 0.3s ease; display: flex; align-items: center; }
+        .main-nav a:hover { opacity: 0.8; }
+        .main-nav img { height: 20px; vertical-align: middle; }
+        
+        .search-bar { display: flex; align-items: center; background-image: url('campo pesquisa.png'); background-size: 100% 100%; background-repeat: no-repeat; background-position: center; border: none; padding-left: 15px; height: 40px; }
+        .search-bar input { background: transparent; border: none; padding: 8px 12px; color: #333; outline: none; width: 150px; }
+        .search-bar input::placeholder { color: #aaa; }
+        .search-bar button { background: transparent; border: none; cursor: pointer; padding-right: 10px; display: flex; align-items: center; }
+        .search-bar button img { height: 20px; }
+        
+        .cart-icon-wrapper { position: relative; cursor: pointer; transition: transform 0.3s ease; }
+        .cart-icon-wrapper:hover { transform: scale(1.1); }
+        .cart-icon-wrapper img { height: 35px; }
+        .cart-count { position: absolute; top: -8px; right: -8px; background-color: var(--price-yellow); color: var(--text-dark); border-radius: 50%; width: 22px; height: 22px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid var(--text-dark); }
+        
+        main.container {
+            padding-bottom: 150px;
+        }
+
+        .categories-bar {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 0;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .categories-bar img {
+            height: 18px;
+        }
+
+        .content-panel { background-color: var(--panel-bg); border-radius: 20px; padding: 40px; margin-top: 40px; margin-bottom: 40px; animation: fadeIn 1.5s ease-in-out 0.6s; animation-fill-mode: backwards; }
+        .section-title { 
+            color: var(--text-light); 
+            font-size: 2.5rem; 
+            text-align: center; 
+            margin-bottom: 30px;
+            font-family: 'BankGothic', sans-serif;
+        }
+        
+        .product-card { background-color: #fff; color: var(--text-dark); border-radius: 10px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.2); display: flex; flex-direction: column; height: 100%; }
+        .product-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
+        .product-info { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .product-info h3 { 
+            margin: 0 0 10px 0; 
+            font-size: 1.2rem;
+            font-family: 'BankGothic', sans-serif;
+        }
+        .product-info p { margin: 0 0 20px 0; font-size: 0.85rem; color: #666; flex-grow: 1; }
+        .product-price { font-size: 1.8rem; font-weight: 900; color: var(--text-dark); }
+        .product-price span { font-size: 1rem; font-weight: 700; color: #555; }
+        .add-to-cart-btn { background-color: var(--price-yellow); color: var(--text-dark); border: none; padding: 12px; font-weight: 700; cursor: pointer; transition: background-color 0.3s; width: 100%; margin-top: 15px; border-radius: 5px; }
+        .add-to-cart-btn:hover { background-color: #d4c908; }
+        
+        .swiper-button-next, .swiper-button-prev { color: var(--price-yellow); }
+        .swiper-slide { height: auto; }
+
+        .custom-product-card { background-color: #fff; color: var(--text-dark); border-radius: 10px; padding: 20px; height: 100%; display: flex; flex-direction: column; }
+        .custom-product-card h3 { 
+            margin-top: 0; 
+            margin-bottom: 15px;
+            font-family: 'BankGothic', sans-serif;
+            font-size: 1.2rem;
+        }
+        .custom-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .custom-fields label, .color-selector label { font-size: 0.9rem; font-weight: 700; margin-bottom: 5px; display: block; }
+        .custom-fields input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .color-selector { margin-bottom: 15px; }
+        .calculated-price { font-size: 1.5rem; font-weight: 900; text-align: center; min-height: 27px; visibility: hidden; }
+        
+        .price-button-wrapper {
+            margin-top: auto;
+            padding-top: 15px;
+        }
+        
+        .custom-select {
+            appearance: none; -webkit-appearance: none; -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1.2em;
+            padding: 8px; padding-right: 2.5rem;
+            border: 1px solid #ccc; border-radius: 4px;
+            width: 100%; box-sizing: border-box;
+        }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background-color: #fff; color: var(--text-dark); padding: 30px; border-radius: 10px; width: 90%; max-width: 600px; max-height: 80vh; display: flex; flex-direction: column; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 15px; margin-bottom: 15px; }
+        .modal-header h2 { margin: 0; }
+        .modal-close { font-size: 2rem; cursor: pointer; border: none; background: none; }
+        .cart-items { overflow-y: auto; flex-grow: 1; }
+        .cart-item { display: flex; align-items: center; margin-bottom: 15px; }
+        .cart-item-info { flex-grow: 1; }
+        .cart-item-info h4 { margin: 0 0 5px 0; }
+        .cart-item-info p { margin: 0; font-size: 0.9rem; color: #666; }
+        .cart-item-controls { display: flex; align-items: center; }
+        .quantity-btn { background: #eee; border: 1px solid #ccc; cursor: pointer; width: 30px; height: 30px; font-size: 1.2rem; }
+        .quantity-display { padding: 0 10px; font-weight: 700; }
+        .remove-item-btn { color: #dc3545; background: none; border: none; cursor: pointer; margin-left: 15px; font-weight: 700; }
+        .cart-modal-footer { border-top: 1px solid #ccc; padding-top: 15px; margin-top: 15px; text-align: right; }
+        .cart-total { font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; }
+        .cart-actions button { padding: 12px 20px; border: none; border-radius: 5px; font-weight: 700; cursor: pointer; margin-left: 10px; }
+        .action-btn { background-color: #6c757d; color: white; }
+        .whatsapp-btn { background-color: #25D366; color: white; }
+        #lead-form-container { display: none; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 700; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .form-error { color: #dc3545; font-size: 0.9rem; margin-top: 5px; }
+        #notification { position: fixed; bottom: 20px; right: 20px; background-color: #25D366; color: white; padding: 15px 25px; border-radius: 5px; z-index: 2000; opacity: 0; transition: opacity 0.5s, transform 0.5s; transform: translateY(20px); }
+        #notification.show { opacity: 1; transform: translateY(0); }
+
+        .floating-buttons-container { position: fixed; bottom: 30px; right: 30px; z-index: 999; display: flex; flex-direction: column; gap: 15px; }
+        .floating-btn { background-color: var(--panel-bg); color: var(--text-light); border: 2px solid var(--price-yellow); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.3s, opacity 0.3s, visibility 0.3s; }
+        .floating-btn:hover { transform: scale(1.1); }
+        #floating-cart-btn { position: relative; }
+        #back-to-top-btn { opacity: 0; visibility: hidden; transform: translateY(10px); }
+        #back-to-top-btn.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+
+        .main-footer { background-color: var(--panel-bg); color: var(--text-light); padding: 40px 0; border-top: 4px solid var(--price-yellow); }
+        .footer-content { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px; text-align: center; }
+        .footer-info { flex: 1; min-width: 220px; }
+        .footer-info h4 { margin: 0 0 15px 0; font-weight: 900; color: var(--price-yellow); }
+        .footer-info p { margin: 0; font-size: 0.9rem; line-height: 1.6; }
+        #address-link { cursor: pointer; transition: color 0.3s; }
+        #address-link:hover { color: var(--price-yellow); }
+        .social-icons a { color: var(--text-light); text-decoration: none; margin: 0 10px; transition: color 0.3s; }
+        .social-icons a:hover { color: var(--price-yellow); }
+        .social-icons svg { width: 28px; height: 28px; }
+        .footer-copyright { width: 100%; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #444; font-size: 0.8rem; color: #aaa; }
+        
+        #nav-modal .modal-content { max-width: 400px; }
+        .nav-options { display: flex; flex-direction: column; gap: 15px; }
+        .nav-options a { background-color: #f0f0f0; color: var(--text-dark); text-decoration: none; padding: 15px 20px; border-radius: 8px; font-weight: 700; text-align: center; transition: background-color 0.3s; }
+        .nav-options a:hover { background-color: #ddd; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    
+    <header class="main-header container">
+        <div class="logo-box">
+            <img src="logo.png" alt="Vidal Design Logo">
+        </div>
+        <div class="navigation-wrapper">
+            <nav class="main-nav">
+                <a href="#"><img src="home.png" alt="Home"></a>
+                <a href="#"><img src="produtos.png" alt="Produtos"></a>
+                <a href="#"><img src="destaque.png" alt="Destaques"></a>
+                <a href="#"><img src="contato.png" alt="Contato"></a>
+            </nav>
+            <div class="search-bar">
+                <input type="text" placeholder="">
+                <button>
+                    <img src="icon lupa.png" alt="Buscar">
+                </button>
+            </div>
+            <div id="cart-icon" class="cart-icon-wrapper">
+                <img src="carrinho de compras.png" alt="Carrinho de Compras">
+                <span id="header-cart-count" class="cart-count">0</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="categories-bar container">
+        <img src="cartão.png" alt="Cartão">
+        <img src="panfleto.png" alt="Panfleto">
+        <img src="banner.png" alt="Banner">
+        <img src="fachada.png" alt="Fachada">
+        <img src="toldo.png" alt="Toldo">
+        <img src="adesivo.png" alt="Adesivo">
+        <img src="calendário.png" alt="Calendário">
+        <img src="imã.png" alt="Imã">
+        <img src="camisetas.png" alt="Camisetas">
+    </section>
+
+    <main class="container">
+        <section class="content-panel">
+            <h2 class="section-title">Produtos em Destaque</h2>
+            <div class="swiper featured-swiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide" data-id="1" data-name="Cartão de Visita em Couché Fosco" data-price="85.99" data-desc="Laminação Fosca e Verniz Localizado."><div class="product-card"><img src="https://placehold.co/600x400/e0e0e0/333?text=Cartão+de+Visita" alt="Cartão de Visita"><div class="product-info"><h3>Cartão de Visita em Couché Fosco</h3><p>Laminação Fosca e Verniz Localizado.</p><div class="product-price">R$ 85,99 <span>/ 100 un.</span></div><button class="add-to-cart-btn">Adicionar ao Carrinho</button></div></div></div>
+                    <div class="swiper-slide" data-id="2" data-name="Adesivo Vinil" data-price="88.99" data-desc="Tamanho personalizado, Colorido Frente, Rolo Meio-Corte."><div class="product-card"><img src="https://placehold.co/600x400/e0e0e0/333?text=Adesivo+Vinil" alt="Adesivo Vinil"><div class="product-info"><h3>Adesivo Vinil</h3><p>Tamanho personalizado, Colorido Frente, Rolo Meio-Corte.</p><div class="product-price">R$ 88,99 <span>/ 1 un.</span></div><button class="add-to-cart-btn">Adicionar ao Carrinho</button></div></div></div>
+                    <div class="swiper-slide" data-id="3" data-name="Tag Personalizada" data-price="77.99" data-desc="48x88mm, Colorido Frente e Verso, Furo 4,7mm."><div class="product-card"><img src="https://placehold.co/600x400/e0e0e0/333?text=Tag+Personalizada" alt="Tag Personalizada"><div class="product-info"><h3>Tag Personalizada</h3><p>48x88mm, Colorido Frente e Verso, Furo 4,7mm.</p><div class="product-price">R$ 77,99 <span>/ 1.000 un.</span></div><button class="add-to-cart-btn">Adicionar ao Carrinho</button></div></div></div>
+                    <div class="swiper-slide" data-id="4" data-name="Pasta com bolsa" data-price="420.99" data-desc="220x310mm, Colorido Frente, Bolsa Colada, 1 Vinco."><div class="product-card"><img src="https://placehold.co/600x400/e0e0e0/333?text=Pasta+com+Bolsa" alt="Pasta com bolsa"><div class="product-info"><h3>Pasta com bolsa</h3><p>220x310mm, Colorido Frente, Bolsa Colada, 1 Vinco.</p><div class="product-price">R$ 420,99 <span>/ 100 un.</span></div><button class="add-to-cart-btn">Adicionar ao Carrinho</button></div></div></div>
+                </div>
+                <div class="swiper-button-prev"></div><div class="swiper-button-next"></div>
+            </div>
+        </section>
+
+        <section class="content-panel">
+            <h2 class="section-title">Produtos Sob Medida</h2>
+            <div class="swiper custom-swiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><div class="custom-product-card" data-id="5" data-name="Adesivo Impresso" data-price-m2="100.00" data-type="area"><h3 >Adesivo Impresso</h3><div class="custom-fields"><div><label>Altura (cm)</label><input type="number" class="custom-height" min="1"></div><div><label>Largura (cm)</label><input type="number" class="custom-width" min="1"></div><div><label>Quantidade</label><input type="number" class="custom-quantity" value="1" min="1"></div></div><div class="price-button-wrapper"><div class="calculated-price"></div><button class="add-to-cart-btn custom">Adicionar ao Carrinho</button></div></div></div>
+                    <div class="swiper-slide"><div class="custom-product-card" data-id="6" data-name="Banner com Bastão" data-price-m2="100.00" data-type="area"><h3>Banner com Bastão</h3><div class="custom-fields"><div><label>Altura (cm)</label><input type="number" class="custom-height" min="1"></div><div><label>Largura (cm)</label><input type="number" class="custom-width" min="1"></div><div><label>Quantidade</label><input type="number" class="custom-quantity" value="1" min="1"></div></div><div class="price-button-wrapper"><div class="calculated-price"></div><button class="add-to-cart-btn custom">Adicionar ao Carrinho</button></div></div></div>
+                    <div class="swiper-slide"><div class="custom-product-card" data-id="7" data-name="Faixa com Madeirinhas" data-price-m2="100.00" data-type="area"><h3>Faixa com Madeirinhas</h3><div class="custom-fields"><div><label>Altura (cm)</label><input type="number" class="custom-height" min="1"></div><div><label>Largura (cm)</label><input type="number" class="custom-width" min="1"></div><div><label>Quantidade</label><input type="number" class="custom-quantity" value="1" min="1"></div></div><div class="price-button-wrapper"><div class="calculated-price"></div><button class="add-to-cart-btn custom">Adicionar ao Carrinho</button></div></div></div>
+                    <div class="swiper-slide"><div class="custom-product-card" data-id="8" data-name="Adesivo Recorte Eletrônico" data-price-m2="80.00" data-type="area"><h3>Adesivo Recorte Eletrônico</h3><div class="custom-fields"><div><label>Altura (cm)</label><input type="number" class="custom-height" min="1"></div><div><label>Largura (cm)</label><input type="number" class="custom-width" min="1"></div><div><label>Quantidade</label><input type="number" class="custom-quantity" value="1" min="1"></div></div><div class="color-selector"><label>Cor do Adesivo</label><select class="custom-select"><optgroup label="Cores Básicas"><option>Branco Brilho</option><option>Branco Fosco</option><option>Preto Brilho</option><option>Preto Fosco</option></optgroup><optgroup label="Cinzas"><option>Cinza Claro</option><option>Cinza Médio</option><option>Cinza Escuro</option><option>Grafite</option></optgroup><optgroup label="Azuis"><option>Azul Céu</option><option>Azul Médio</option><option>Azul Marinho</option><option>Azul Royal</option><option>Turquesa</option></optgroup><optgroup label="Verdes"><option>Verde Bandeira</option><option>Verde Limão</option><option>Verde Abacate</option><option>Verde Floresta</option></optgroup><optgroup label="Amarelos"><option>Amarelo Canário</option><option>Amarelo Ouro</option><option>Amarelo Médio</option></optgroup><optgroup label="Vermelhos e Laranjas"><option>Laranja</option><option>Vermelho Tomate</option><option>Vermelho Vivo</option><option>Vinho</option><option>Bordô</option></optgroup><optgroup label="Rosas e Roxos"><option>Rosa Claro</option><option>Pink</option><option>Violeta</option></optgroup><optgroup label="Metálicos"><option>Prata</option><option>Ouro</option></optgroup></select></div><div class="price-button-wrapper"><div class="calculated-price"></div><button class="add-to-cart-btn custom">Adicionar ao Carrinho</button></div></div></div>
+                    <div class="swiper-slide"><div class="custom-product-card" data-id="9" data-name="Toldo Retrátil" data-type="linear-retratil"><h3>Toldo Retrátil</h3><div class="custom-fields"><div><label>Largura (cm)</label><input type="number" class="custom-width" min="1"></div><div><label>Projeção (cm)</label><input type="number" class="custom-projection" min="1"></div></div><div class="color-selector"><label>Cor da Lona</label><select class="custom-select"><option>Bege</option><option>Marfim</option><option>Branco</option><option>Cinza</option><option>Marrom</option><option>Preto</option><option>Amarelo</option><option>Laranja</option><option>Vermelho</option><option>Azul</option><option>Verde</option></select></div><div class="price-button-wrapper"><div class="calculated-price"></div><button class="add-to-cart-btn custom">Adicionar ao Carrinho</button></div></div></div>
+                    <div class="swiper-slide"><div class="custom-product-card" data-id="10" data-name="Toldo Cortina" data-type="linear-cortina"><h3>Toldo Cortina</h3><div class="custom-fields"><div><label>Largura (cm)</label><input type="number" class="custom-width" min="1"></div><div><label>Altura (cm)</label><input type="number" class="custom-height" min="1"></div></div><div class="color-selector"><label>Cor da Lona</label><select class="custom-select"><option>Bege</option><option>Marfim</option><option>Branco</option><option>Cinza</option><option>Marrom</option><option>Preto</option><option>Amarelo</option><option>Laranja</option><option>Vermelho</option><option>Azul</option><option>Verde</option></select></div><div class="price-button-wrapper"><div class="calculated-price"></div><button class="add-to-cart-btn custom">Adicionar ao Carrinho</button></div></div></div>
+                </div>
+                <div class="swiper-button-prev"></div><div class="swiper-button-next"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container footer-content">
+            <div class="footer-info"><h4>Vidal Design Solutions</h4><p>Qualidade e Inovação em Comunicação Visual.</p></div>
+            <div class="footer-info"><h4>Contato</h4><p>11 96864-9673</p><p>11 94914-1803</p></div>
+            <div class="footer-info"><h4>Endereço</h4><div id="address-link"><p>Rua Antonio Cordeiro, 57 - São João</p><p>Mogi das Cruzes - SP</p></div></div>
+            <div class="footer-info"><h4>Redes Sociais</h4><div class="social-icons"><a href="#" target="_blank" title="Facebook"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/></svg></a><a href="#" target="_blank" title="Instagram"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.282.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.231 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.843-.038 1.096-.047 3.232-.047zM8 4.868a3.132 3.132 0 1 0 0 6.264 3.132 3.132 0 0 0 0-6.264zm0 5.164a2.032 2.032 0 1 1 0-4.064 2.032 2.032 0 0 1 0 4.064zm4.908-5.343a1.162 1.162 0 1 0 0 2.324 1.162 1.162 0 0 0 0-2.324z"/></svg></a></div></div>
+            <div class="footer-copyright">&copy; 2024 Vidal Design Solutions. Todos os direitos reservados.</div>
+        </div>
+    </footer>
+
+    <!-- Modal do Carrinho -->
+    <div id="cart-modal" class="modal-overlay">
+        <div class="modal-content"><div class="modal-header"><h2 id="cart-modal-title">Carrinho de Compras</h2><button id="close-cart-modal-btn" class="modal-close">&times;</button></div><div id="cart-view"><div id="cart-items-container" class="cart-items"></div><div class="cart-modal-footer"><div id="cart-total" class="cart-total">Total: R$ 0,00</div><div class="cart-actions"><button class="action-btn" data-action="pdf">Imprimir / Gerar PDF</button><button class="whatsapp-btn" data-action="whatsapp">Enviar Pedido via WhatsApp</button></div></div></div><div id="lead-form-container"><div class="form-group"><label for="customer-name">Seu Nome Completo</label><input type="text" id="customer-name" required><div class="form-error" id="name-error"></div></div><div class="form-group"><label for="customer-contact">Seu Contato (WhatsApp ou E-mail)</label><input type="text" id="customer-contact" required><div class="form-error" id="contact-error"></div></div><div class="cart-modal-footer"><button id="back-to-cart-btn" class="action-btn">Voltar</button><button id="finalize-order-btn" class="whatsapp-btn">Finalizar Pedido</button></div></div></div>
+    </div>
+
+    <!-- Modal de Navegação -->
+    <div id="nav-modal" class="modal-overlay">
+        <div class="modal-content"><div class="modal-header"><h2>Abrir Rota</h2><button id="close-nav-modal-btn" class="modal-close">&times;</button></div><div class="nav-options"><a href="https://www.google.com/maps/search/?api=1&query=Rua%20Antonio%20Cordeiro%2C%2057%2C%20Mogi%20das%20Cruzes%2C%20SP" target="_blank">Google Maps</a><a href="https://waze.com/ul?q=Rua%20Antonio%20Cordeiro%2C%2057%2C%20Mogi%20das%20Cruzes%2C%20SP" target="_blank">Waze</a></div></div>
+    </div>
+
+    <!-- Botões Flutuantes -->
+    <div class="floating-buttons-container">
+        <button id="floating-cart-btn" class="floating-btn cart-icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg><span id="floating-cart-count" class="cart-count">0</span></button>
+        <button id="back-to-top-btn" class="floating-btn"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/></svg></button>
+    </div>
+
+    <!-- Notificação -->
+    <div id="notification">Item adicionado ao carrinho!</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const featuredSwiper = new Swiper('.featured-swiper', { loop: true, slidesPerView: 1, spaceBetween: 30, breakpoints: { 640: { slidesPerView: 2, spaceBetween: 20 }, 768: { slidesPerView: 3, spaceBetween: 30 }, 1024: { slidesPerView: 4, spaceBetween: 30 } }, navigation: { nextEl: '.featured-swiper .swiper-button-next', prevEl: '.featured-swiper .swiper-button-prev' } });
+            const customSwiper = new Swiper('.custom-swiper', { loop: true, slidesPerView: 1, spaceBetween: 30, breakpoints: { 640: { slidesPerView: 1, spaceBetween: 20 }, 768: { slidesPerView: 2, spaceBetween: 30 }, 1024: { slidesPerView: 3, spaceBetween: 30 } }, navigation: { nextEl: '.custom-swiper .swiper-button-next', prevEl: '.custom-swiper .swiper-button-prev' } });
+
+            let cart = [];
+            let finalAction = '';
+
+            const cartIcon = document.getElementById('cart-icon'), cartModal = document.getElementById('cart-modal'), closeCartModalBtn = document.getElementById('close-cart-modal-btn'), cartItemsContainer = document.getElementById('cart-items-container'), cartTotalEl = document.getElementById('cart-total'), headerCartCountEl = document.getElementById('header-cart-count'), notificationEl = document.getElementById('notification'), cartView = document.getElementById('cart-view'), leadFormContainer = document.getElementById('lead-form-container'), finalizeOrderBtn = document.getElementById('finalize-order-btn'), backToCartBtn = document.getElementById('back-to-cart-btn'), customerNameInput = document.getElementById('customer-name'), customerContactInput = document.getElementById('customer-contact'), floatingCartBtn = document.getElementById('floating-cart-btn'), floatingCartCountEl = document.getElementById('floating-cart-count'), backToTopBtn = document.getElementById('back-to-top-btn'), addressLink = document.getElementById('address-link'), navModal = document.getElementById('nav-modal'), closeNavModalBtn = document.getElementById('close-nav-modal-btn');
+
+            const updateCart = () => {
+                cartItemsContainer.innerHTML = '';
+                let total = 0, totalItems = 0;
+                if (cart.length === 0) {
+                    cartItemsContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
+                    cartView.querySelector('.cart-actions').style.display = 'none';
+                } else {
+                    cartView.querySelector('.cart-actions').style.display = 'block';
+                    cart.forEach(item => {
+                        const itemEl = document.createElement('div');
+                        itemEl.classList.add('cart-item');
+                        itemEl.innerHTML = `<div class="cart-item-info"><h4>${item.name}</h4><p>${item.desc}</p></div><div class="cart-item-controls">${item.isCustom ? `<span class="quantity-display">Qtd: ${item.quantity}</span>` : `<button class="quantity-btn" data-id="${item.id}" data-action="decrease">-</button><span class="quantity-display">${item.quantity}</span><button class="quantity-btn" data-id="${item.id}" data-action="increase">+</button>`}<button class="remove-item-btn" data-id="${item.id}">Remover</button></div>`;
+                        cartItemsContainer.appendChild(itemEl);
+                        total += item.price * item.quantity;
+                        totalItems += item.quantity;
+                    });
+                }
+                cartTotalEl.innerText = `Total: R$ ${total.toFixed(2).replace('.', ',')}`;
+                headerCartCountEl.innerText = totalItems;
+                floatingCartCountEl.innerText = totalItems;
+            };
+            
+            const showNotification = () => { notificationEl.classList.add('show'); setTimeout(() => { notificationEl.classList.remove('show'); }, 2000); };
+
+            document.querySelectorAll('.add-to-cart-btn:not(.custom)').forEach(button => {
+                button.addEventListener('click', () => {
+                    const slide = button.closest('.swiper-slide'), id = slide.dataset.id, name = slide.dataset.name, price = parseFloat(slide.dataset.price), desc = slide.dataset.desc;
+                    const existingItem = cart.find(item => item.id === id && !item.isCustom);
+                    if (existingItem) { existingItem.quantity++; } 
+                    else { cart.push({ id, name, price, desc, quantity: 1, isCustom: false }); }
+                    updateCart(); showNotification();
+                });
+            });
+
+            cartItemsContainer.addEventListener('click', (e) => {
+                const target = e.target, id = target.dataset.id;
+                if (target.classList.contains('quantity-btn')) {
+                    const action = target.dataset.action, item = cart.find(i => i.id === id);
+                    if (item) { if (action === 'increase') { item.quantity++; } else if (action === 'decrease') { item.quantity > 1 ? item.quantity-- : cart = cart.filter(i => i.id !== id); } }
+                } else if (target.classList.contains('remove-item-btn')) { cart = cart.filter(i => i.id !== id); }
+                updateCart();
+            });
+
+            const openModal = (modal) => { modal.style.display = 'flex'; };
+            const closeModal = (modal) => { modal.style.display = 'none'; };
+            
+            cartIcon.addEventListener('click', () => { cartView.style.display = 'block'; leadFormContainer.style.display = 'none'; openModal(cartModal); updateCart(); });
+            floatingCartBtn.addEventListener('click', () => { cartView.style.display = 'block'; leadFormContainer.style.display = 'none'; openModal(cartModal); updateCart(); });
+            closeCartModalBtn.addEventListener('click', () => closeModal(cartModal));
+            cartModal.addEventListener('click', (e) => { if (e.target === cartModal) { closeModal(cartModal); } });
+            
+            addressLink.addEventListener('click', () => openModal(navModal));
+            closeNavModalBtn.addEventListener('click', () => closeModal(navModal));
+            navModal.addEventListener('click', (e) => { if (e.target === navModal) { closeModal(navModal); } });
+
+            cartView.querySelector('.cart-actions').addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    finalAction = e.target.dataset.action;
+                    cartView.style.display = 'none'; leadFormContainer.style.display = 'block';
+                    document.getElementById('cart-modal-title').innerText = 'Informações para o Pedido';
+                }
+            });
+
+            backToCartBtn.addEventListener('click', () => {
+                leadFormContainer.style.display = 'none'; cartView.style.display = 'block';
+                document.getElementById('cart-modal-title').innerText = 'Carrinho de Compras';
+            });
+
+            finalizeOrderBtn.addEventListener('click', () => {
+                const name = customerNameInput.value.trim(), contact = customerContactInput.value.trim();
+                let isValid = true;
+                document.getElementById('name-error').innerText = ''; document.getElementById('contact-error').innerText = '';
+                if (!name) { document.getElementById('name-error').innerText = 'Por favor, preencha seu nome.'; isValid = false; }
+                if (!contact) { document.getElementById('contact-error').innerText = 'Por favor, preencha seu contato.'; isValid = false; }
+                if (isValid) {
+                    if (finalAction === 'whatsapp') sendWhatsAppMessage(name, contact);
+                    if (finalAction === 'pdf') generatePDF(name, contact);
+                    closeModal(cartModal);
+                }
+            });
+
+            document.querySelectorAll('.custom-product-card').forEach(card => {
+                card.addEventListener('input', () => {
+                    const type = card.dataset.type;
+                    const priceDisplay = card.querySelector('.calculated-price');
+                    let price = 0;
+
+                    if (type === 'area') {
+                        const height = parseFloat(card.querySelector('.custom-height').value) || 0;
+                        const width = parseFloat(card.querySelector('.custom-width').value) || 0;
+                        const quantity = parseInt(card.querySelector('.custom-quantity').value) || 0;
+                        const pricePerM2 = parseFloat(card.dataset.priceM2);
+                        if (height > 0 && width > 0 && quantity > 0) {
+                            const totalAreaM2 = ((height / 100) * (width / 100)) * quantity;
+                            const chargeableAreaM2 = Math.max(totalAreaM2, 0.5);
+                            price = chargeableAreaM2 * pricePerM2;
+                        }
+                    } else if (type === 'linear-retratil' || type === 'linear-cortina') {
+                        const width = parseFloat(card.querySelector('.custom-width').value) || 0;
+                        const secondaryDim = parseFloat(card.querySelector(type === 'linear-retratil' ? '.custom-projection' : '.custom-height').value) || 0;
+                        if (width > 0 && secondaryDim > 0) {
+                            const widthM = width / 100;
+                            let pricePerLinearM;
+                            if (type === 'linear-retratil') {
+                                pricePerLinearM = secondaryDim <= 150 ? 300 : 350;
+                            } else { // linear-cortina
+                                pricePerLinearM = secondaryDim <= 200 ? 300 : 350;
+                            }
+                            price = widthM * pricePerLinearM;
+                        }
+                    }
+
+                    if (price > 0) {
+                        priceDisplay.innerText = `R$ ${price.toFixed(2).replace('.', ',')}`;
+                        priceDisplay.style.visibility = 'visible';
+                    } else {
+                        priceDisplay.style.visibility = 'hidden';
+                    }
+                });
+
+                card.querySelector('.add-to-cart-btn.custom').addEventListener('click', () => {
+                    const name = card.dataset.name;
+                    const type = card.dataset.type;
+                    let price = 0, desc = '', quantity = 1, isValid = false;
+
+                    if (type === 'area') {
+                        const height = parseFloat(card.querySelector('.custom-height').value) || 0;
+                        const width = parseFloat(card.querySelector('.custom-width').value) || 0;
+                        quantity = parseInt(card.querySelector('.custom-quantity').value) || 0;
+                        const pricePerM2 = parseFloat(card.dataset.priceM2);
+                        if (height > 0 && width > 0 && quantity > 0) {
+                            const totalAreaM2 = ((height / 100) * (width / 100)) * quantity;
+                            const chargeableAreaM2 = Math.max(totalAreaM2, 0.5);
+                            const totalPrice = chargeableAreaM2 * pricePerM2;
+                            price = totalPrice / quantity;
+                            const colorSelect = card.querySelector('.custom-select'), color = colorSelect ? ` | Cor: ${colorSelect.value}` : '';
+                            desc = `Medidas: ${height}cm x ${width}cm${color}`;
+                            isValid = true;
+                        }
+                    } else if (type === 'linear-retratil' || type === 'linear-cortina') {
+                        const width = parseFloat(card.querySelector('.custom-width').value) || 0;
+                        const secondaryDimValue = parseFloat(card.querySelector(type === 'linear-retratil' ? '.custom-projection' : '.custom-height').value) || 0;
+                        if (width > 0 && secondaryDimValue > 0) {
+                            const widthM = width / 100;
+                            let pricePerLinearM;
+                            if (type === 'linear-retratil') {
+                                pricePerLinearM = secondaryDimValue <= 150 ? 300 : 350;
+                                desc = `Largura: ${width}cm | Projeção: ${secondaryDimValue}cm`;
+                            } else {
+                                pricePerLinearM = secondaryDimValue <= 200 ? 300 : 350;
+                                desc = `Largura: ${width}cm | Altura: ${secondaryDimValue}cm`;
+                            }
+                            price = widthM * pricePerLinearM;
+                            const colorSelect = card.querySelector('.custom-select'), color = colorSelect ? ` | Cor: ${colorSelect.value}` : '';
+                            desc += color;
+                            isValid = true;
+                        }
+                    }
+
+                    if (isValid) {
+                        cart.push({ id: Date.now().toString(), name, price, desc, quantity, isCustom: true });
+                        updateCart(); showNotification();
+                    } else {
+                        alert("Por favor, preencha todos os campos corretamente.");
+                    }
+                });
+            });
+
+            const generateOrderSummary = (customerName, customerContact) => {
+                let summary = `*DADOS DO CLIENTE:*\nNome: ${customerName}\nContato: ${customerContact}\n\n*PEDIDO:*\n\n`;
+                let total = 0;
+                cart.forEach(item => {
+                    summary += `*Produto:* ${item.name}\n*Detalhes:* ${item.desc}\n*Quantidade:* ${item.quantity}\n*Subtotal:* R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}\n\n`;
+                    total += item.price * item.quantity;
+                });
+                summary += `*TOTAL DO PEDIDO: R$ ${total.toFixed(2).replace('.', ',')}*`;
+                return { summary, total };
+            };
+
+            const sendWhatsAppMessage = (name, contact) => {
+                const { summary } = generateOrderSummary(name, contact);
+                const phoneNumber = '5511968649673';
+                const encodedMessage = encodeURIComponent(summary);
+                window.open(`https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`, '_blank');
+            };
+
+            const generatePDF = (name, contact) => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const logoBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+                try { doc.addImage(logoBase64, 'PNG', 15, 10, 50, 25); } catch (e) { console.error(e); doc.text("Logo Vidal Design", 15, 20); }
+                doc.setFontSize(10);
+                doc.text("Vidal Design Solutions", 70, 15);
+                doc.text("Contato: 11 96864-9673 / 11 94914-1803", 70, 20);
+                doc.text("Rua Antonio Cordeiro, 57 - São João - Mogi das Cruzes - SP", 70, 25);
+                doc.setFontSize(18); doc.text("Orçamento de Pedido", 15, 50);
+                doc.setFontSize(12); doc.text(`Cliente: ${name}`, 15, 60); doc.text(`Contato: ${contact}`, 15, 65);
+                let y = 75;
+                doc.text("Produto / Detalhes", 15, y); doc.text("Qtd.", 120, y); doc.text("Subtotal", 160, y);
+                y += 5; doc.line(15, y, 195, y); y += 10;
+                let total = 0;
+                cart.forEach(item => {
+                    doc.setFontSize(10);
+                    const splitTitle = doc.splitTextToSize(`${item.name} (${item.desc})`, 100);
+                    doc.text(splitTitle, 15, y);
+                    doc.text(item.quantity.toString(), 125, y);
+                    doc.text(`R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}`, 160, y);
+                    total += item.price * item.quantity;
+                    y += (splitTitle.length * 5) + 5;
+                });
+                y += 5; doc.line(15, y, 195, y); y += 10;
+                doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+                doc.text(`Total do Pedido: R$ ${total.toFixed(2).replace('.', ',')}`, 120, y);
+                doc.save(`Pedido-${name.replace(/\s/g, '_')}.pdf`);
+            };
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) { backToTopBtn.classList.add('visible'); } 
+                else { backToTopBtn.classList.remove('visible'); }
+            });
+
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+
+</body>
+</html>
